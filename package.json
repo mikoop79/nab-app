@@ -1,0 +1,27 @@
+{
+  "name": "nab-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pulls NAB expenses weekly via the Basiq Open Banking API and emails a spending report.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "cli": "tsx src/cli.ts",
+    "setup": "tsx src/cli.ts setup",
+    "pull": "tsx src/cli.ts pull",
+    "status": "tsx src/cli.ts status",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "nodemailer": "^10.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/nodemailer": "^8.0.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

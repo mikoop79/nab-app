@@ -1,0 +1,44 @@
+name: Weekly NAB report
+
+on:
+  schedule:
+    # Sunday 21:00 UTC = Monday 8am in Sydney (7am outside daylight saving).
+    - cron: "0 21 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write # only used to keep this schedule switched on (see last step)
+
+concurrency:
+  group: weekly-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Logs from this repo are public, so the CLI prints counts only and emails the report.
+      - run: npm run pull
+        env:
+          BASIQ_API_KEY: ${{ secrets.BASIQ_API_KEY }}
+          BASIQ_USER_ID: ${{ secrets.BASIQ_USER_ID }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          REPORT_TO: ${{ secrets.REPORT_TO }}
+      # GitHub switches off schedules in repos with no activity for 60 days.
+      # Re-enabling the workflow each run keeps it going without dummy commits.
+      - name: Keep schedule alive
+        if: always()
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/weekly.yml/enable"
+        env:
+          GH_TOKEN: ${{ github.token }}
