@@ -1,0 +1,30 @@
+name: Reconnect NAB
+
+# Run this from the Actions tab the first time, and whenever the approval expires.
+# It creates your Basiq user if needed and emails you a link to approve NAB data sharing.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  consent-link:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run setup
+        env:
+          BASIQ_API_KEY: ${{ secrets.BASIQ_API_KEY }}
+          BASIQ_USER_ID: ${{ secrets.BASIQ_USER_ID }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          REPORT_TO: ${{ secrets.REPORT_TO }}
